@@ -54,5 +54,24 @@ object Sindy {
       set.map(currentAttribute => (currentAttribute, set.filter(attribute => !attribute.equals(currentAttribute)))))
     //    println("Candidates:")
     //    candidates.show()
+    // Group the candidates by candidate name
+    val groupedCandidates = candidates.groupByKey(_._1)
+    //    println("Grouped Candidates:")
+    //    groupedCandidates.mapGroups((key, data) => (key, data.toList)).show()
+
+    // Filter out candidates with empty sets
+    val nonEmptyCandidates = groupedCandidates.mapGroups((key, iterator) =>
+      (key, iterator.map(row => row._2).reduce((set1, set2) => set1.intersect(set2))))
+    //    println("Non-Empty Candidates:")
+    //    nonEmptyCandidates.show()
+
+    // Collect the results and sort them by keys
+    val sortedResults = nonEmptyCandidates.collect().filter(x => !x._2.isEmpty).sortBy(_._1)
+    //    println("Sorted Results:")
+    //    sortedResults.foreach(println)
+
+    // Sort the values and print them
+    sortedResults.map(x => (x._1, x._2.toList.sorted))
+      .foreach(x => println(x._1 + " < " + x._2.mkString(", ")))
   }
 }
