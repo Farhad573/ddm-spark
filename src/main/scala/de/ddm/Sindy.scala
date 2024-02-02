@@ -30,7 +30,7 @@ object Sindy {
           for (i <- columns.indices) yield {
             (row.getString(i), columns(i))
           }
-        }) // (value, colName)
+        })
       })
     //    println("Flattened Data:")
     //    flattenedData.foreach(println)
@@ -49,23 +49,26 @@ object Sindy {
     //    println("Column Sets:")
     //    columnSets.show()
 
-    // Generate all possible combinations of elements in each set as candidates
+    // It generates all possible combinations of elements in each set as candidates.
+    // For each set of column names for a value, it creates pairs of (currentAttribute,
+    // otherAttributes) where currentAttribute is one column name and otherAttributes is
+    // a set of all other column names for that value.
     val candidates = columnSets.flatMap(set =>
       set.map(currentAttribute => (currentAttribute, set.filter(attribute => !attribute.equals(currentAttribute)))))
     //    println("Candidates:")
     //    candidates.show()
     // Group the candidates by candidate name
     val groupedCandidates = candidates.groupByKey(_._1)
-    //    println("Grouped Candidates:")
-    //    groupedCandidates.mapGroups((key, data) => (key, data.toList)).show()
+//        println("Grouped Candidates:")
+//        groupedCandidates.mapGroups((key, data) => (key, data.toList)).show()
 
     // Filter out candidates with empty sets
     val nonEmptyCandidates = groupedCandidates.mapGroups((key, iterator) =>
       (key, iterator.map(row => row._2).reduce((set1, set2) => set1.intersect(set2))))
-    //    println("Non-Empty Candidates:")
-    //    nonEmptyCandidates.show()
+//        println("Non-Empty Candidates:")
+//        nonEmptyCandidates.show()
 
-    // Collect the results and sort them by keys
+    // Collect the results, remove the tuples with just one element(X,null) sort them by keys
     val sortedResults = nonEmptyCandidates.collect().filter(x => !x._2.isEmpty).sortBy(_._1)
     //    println("Sorted Results:")
     //    sortedResults.foreach(println)
